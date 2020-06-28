@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Project by BovInspectorTool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">BovInspector Paper Example</h1>
+      <!--<a href="https://github.com/BovInspectorTool1/project" class="btn">View on YouTube</a>-->
+
+    </section>
+
+    <section class="main-content">
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a id="sample" class="anchor" href="#sample" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Case</h3>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k">#include <string.h></span>
+<span class="k">#include <stdlib.h></span>
+<span class="k">#include <stdio.h></span>
+<span class="k">#define MAX_LEN  24</span>
+<span class="k">#define MIN_LEN  4</span>
+<span class="k">void usage() {</span>
+<span class="k">	char des_buffer[MIN_LEN];  </span>
+<span class="k">	char* src_buffer="this is an example";</span>
+<span class="k">	strcpy(des_buffer,src_buffer);</span>
+<span class="k">}</span>
+<span class="k">int initialize(char* argv_string) {</span>
+<span class="k">	char mapped_argv[MIN_LEN];</span>
+<span class="k">	if (strlen(argv_string) >= MAX_LEN)</span>
+<span class="k">		 return 0;</span>
+<span class="k">	strcpy(mapped_argv,argv_string);</span>
+<span class="k">	if (argv_string[0] != '-') {</span>
+<span class="k">		strcat(mapped_argv, "-");</span>
+<span class="k">	}</span>
+<span class="k">	return MAX_LEN;</span>
+<span class="k">}</span>
+<span class="k"></span>
+<span class="k">int main(int argc, char **argv) {	</span>
+<span class="k">	char* mode = (char*)malloc(MIN_LEN);</span>
+<span class="k">	int len = 0;</span>
+<span class="k">	if (strlen(argv[1]) < MIN_LEN)</span>
+<span class="k">		len = initialize(argv[1]);</span>
+<span class="k">	if (len > 0) {</span>
+<span class="k">		mode = (char*)realloc(mode, len);</span>
+<span class="k">	}  </span>
+<span class="k">	else {</span>
+<span class="k">		mode[0] = argv[1][0];</span>
+<span class="k">	}</span>
+<span class="k">	mode[MIN_LEN-1] = '\0';</span>
+<span class="k">	free(mode);</span>
+<span class="k">	return 0;</span>
+<span class="k">}</span>
+/code></pre></div>
+<h3>
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Extract the results of Fortify</h3>
+<p>Extract the results of Fortify.Use <code>./fvdlParser audit.fvdl</code> to get static buffer overflow warnings. We save these warnings in the file checklist_bufferoverflow.In this sample ,checklist_bufferoverflow is:</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k">0</span>
+<span class="k">src.c	7	DEF</span>
+<span class="k">src.c	9	BOF</span>
+<span class="k">END_PATH</span>
+<span class="k">1</span>
+<span class="k">src.c	24	DEF</span>
+<span class="k">src.c	28	N/A</span>
+<span class="k">src.c	12	N/A</span>
+<span class="k">src.c	17	N/A</span>
+<span class="k">src.c	19	BOF</span>
+<span class="k">END_PATH</span>
+<span class="k">2</span>
+<span class="k">src.c	30	DEF</span>
+<span class="k">src.c	32	BOF</span>
+<span class="k">END_PATH</span>
+<span class="k">3</span>
+<span class="k">src.c	24	DEF</span>
+<span class="k">src.c	28	N/A</span>
+<span class="k">src.c	12	N/A</span>
+<span class="k">src.c	17	BOF</span>
+<span class="k">END_PATH</span>
+</code></pre></div>
+<p>There are two static buffer overflow warnings in the sample.DEF is the statement label that
+a buffer is first declared or the entry of program. BOF is he statement label that overflow occurs on the buffer.</p>
+<h3>
+<a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Compile testcase to LLVM bitcode</h3>
+
+ KLEE is built on top of LLVM. The first steps are to get a working LLVM installation.You may install llvm-gcc and build LLVM 2.9.To run a program with KLEE, you first compile it to LLVM bitcode using llvm-gcc to generate the LLVM bitcode file src.bc.You may run:<br>
+<code>   &nbsp llvm-gcc --emit-llvm -c -g src.c</code>
+<h3>
+<a id="creating-pages-manually" class="anchor" href="#creating-pages-manually" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Generate warning paths</h3>
+
+<p>Pass framework is a very important part of the LLVM system.Each pass is used to do optimization and conversion work in LLVM.buildCFG.so is a shared object complied by LLVM pass we relized and we use it to build CFG ,analyse reachablity in the graph and get warning path set.
+
+We use opt to dynamic load shared object buildCFG.so and following command to generate GuideSrc.txt.<br>
+
+<code> &nbsp opt -load ./buildCFG.so -buildCFG -targetList=./checklist_bufferoverflow <src.o> /dev/null </code><br>
+
+GuideSrc.txt is consist of several warning paths.A warning path is consist of branches from entry to the position in where may occur buffer  in the testcase.In this sample,the GuideSrc.txt is:<br>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k">Info:</span>
+<span class="k">src.c	19</span>
+<span class="k">src.c	17</span>
+<span class="k">src.c	17</span>
+<span class="k">src.c	15</span>
+<span class="k">src.c	28</span>
+<span class="k">src.c	28</span>
+
+<span class="k">src.c	32</span>
+<span class="k">src.c	30</span>
+<span class="k">src.c	29</span>
+
+<span class="k">src.c	17</span>
+<span class="k">src.c	15</span>
+<span class="k">src.c	28</span>
+<span class="k">src.c	28</span>
+</code></pre></div>
+During the process of symbolic execution,  GuideSrc.txt will be readed in and the path set in the text will be validated.
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Run klee</h3>
+
+To use klee to target guided execute and inspect buffer overflow,you may run klee with command line option --guided-execution and additional input file GuideSrc.txt which should be copyed the to directory where the source file is.<br>
+<code> &nbsp klee --libc=uclibc --posix-runtime --guided-execution src.o --sym-args 1 3 25 </code><br>
+There are four paths through our simple function.Klee only execute two of them in static warning.BovInspector report line 11 is false warning and line 18 is true warning in report_NOTBFO.txt and  report_BFO.txt.
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Repair</h3>
+
+<p>Use python repair.py to repair the vulnerabilities that have been validated.</p>
+      </section>
+    </div>
+
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Demo maintained by <a href="https://github.com/BovInspector">BovInspector</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>

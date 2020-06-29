@@ -168,7 +168,131 @@ BBovInspector report line 15, 33 is false warning and line 17 is true warning in
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Repair</h3>
 
-<p>Use python repair.py to repair the vulnerabilities that have been validated.</p>
+<p>Use python repair.py to repair the buffer overflows that have been validated.</p>
+<p>Repair mode ABC (Add boundary check)</p>
+<a id="sample" class="anchor" href="#sample" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Case</h3>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k"> 1. #include &ltstring.h&gt</span>
+<span class="k"> 2. #include &ltstdlib.h&gt</span>
+<span class="k"> 3. #include &ltstdio.h&gt</span>
+<span class="k"> 4. #define MAX_LEN  24</span>
+<span class="k"> 5. #define MIN_LEN  4</span>
+<span class="k"> 6. void usage() {</span>
+<span class="k"> 7.	char des_buffer[MIN_LEN];  </span>
+<span class="k"> 8.	char* src_buffer="this is an example";</span>
+<span class="k"> 9.	strcpy(des_buffer,src_buffer);</span>
+<span class="k">10. }</span>
+<span class="k">11. int initialize(char* argv_string) {</span>
+<span class="k">12. 	char mapped_argv[MIN_LEN];</span>
+<span class="k">13. 	if (strlen(argv_string) >= MAX_LEN)</span>
+<span class="k">14. 		 return 0;</span>
+<span class="k">15. 	strcpy(mapped_argv,argv_string);</span>
+<span class="k">16. 	if (argv_string[0] != '-') {</span>
+<span class="k">17. 	  if (strlen(mapped_argv)+strlen("-") >= sizeof(mapped_argv)) {</span>
+<span class="k">18. 		  printf("error,exit\n");</span>
+<span class="k">19. 		  return 0;</span>
+<span class="k">20. 		}</span>
+<span class="k">21. 		strcat(mapped_argv, "-");</span>
+<span class="k">22. 	}</span>
+<span class="k">23. 	return MAX_LEN;</span>
+<span class="k">24. }</span>
+<span class="k">25. </span>
+<span class="k">26. int main(int argc, char **argv) {	</span>
+<span class="k">27. 	char* mode = (char*)malloc(MIN_LEN);</span>
+<span class="k">28. 	int len = 0;</span>
+<span class="k">29. 	if (strlen(argv[1]) < MIN_LEN)</span>
+<span class="k">30.		len = initialize(argv[1]);</span>
+<span class="k">31. 	if (len > 0) {</span>
+<span class="k">32. 		mode = (char*)realloc(mode, len);</span>
+<span class="k">33. 	}  </span>
+<span class="k">34. 	else {</span>
+<span class="k">35. 		mode[0] = argv[1][0];</span>
+<span class="k">36. 	}</span>
+<span class="k">37. 	mode[MIN_LEN-1] = '\0';</span>
+<span class="k">38. 	free(mode);</span>
+<span class="k">39. 	return 0;</span>
+<span class="k">40. }</span>
+/code></pre></div>
+<p>Repair mode AR (API Replacement)</p>
+<a id="sample" class="anchor" href="#sample" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Case</h3>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k"> 1. #include &ltstring.h&gt</span>
+<span class="k"> 2. #include &ltstdlib.h&gt</span>
+<span class="k"> 3. #include &ltstdio.h&gt</span>
+<span class="k"> 4. #define MAX_LEN  24</span>
+<span class="k"> 5. #define MIN_LEN  4</span>
+<span class="k"> 6. void usage() {</span>
+<span class="k"> 7.	char des_buffer[MIN_LEN];  </span>
+<span class="k"> 8.	char* src_buffer="this is an example";</span>
+<span class="k"> 9.	strcpy(des_buffer,src_buffer);</span>
+<span class="k">10. }</span>
+<span class="k">11. int initialize(char* argv_string) {</span>
+<span class="k">12. 	char mapped_argv[MIN_LEN];</span>
+<span class="k">13. 	if (strlen(argv_string) >= MAX_LEN)</span>
+<span class="k">14. 		 return 0;</span>
+<span class="k">15. 	strcpy(mapped_argv,argv_string);</span>
+<span class="k">16. 	if (argv_string[0] != '-') {</span>
+<span class="k">17. 		snprintf(mapped_argv+strlen(mapped_argv), sizeof(mapped_argv)-strlen(mapped_argv), "%s", "-");</span>
+<span class="k">18. 	}</span>
+<span class="k">19. 	return MAX_LEN;</span>
+<span class="k">20. }</span>
+<span class="k">21. </span>
+<span class="k">22. int main(int argc, char **argv) {	</span>
+<span class="k">23. 	char* mode = (char*)malloc(MIN_LEN);</span>
+<span class="k">24. 	int len = 0;</span>
+<span class="k">25. 	if (strlen(argv[1]) < MIN_LEN)</span>
+<span class="k">26.		len = initialize(argv[1]);</span>
+<span class="k">27. 	if (len > 0) {</span>
+<span class="k">28. 		mode = (char*)realloc(mode, len);</span>
+<span class="k">29. 	}  </span>
+<span class="k">30. 	else {</span>
+<span class="k">31. 		mode[0] = argv[1][0];</span>
+<span class="k">32. 	}</span>
+<span class="k">33. 	mode[MIN_LEN-1] = '\0';</span>
+<span class="k">34. 	free(mode);</span>
+<span class="k">35. 	return 0;</span>
+<span class="k">36. }</span>
+/code></pre></div>
+<p>Repair mode ULB (using larger buffer)</p>
+<a id="sample" class="anchor" href="#sample" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Case</h3>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k"> 1. #include &ltstring.h&gt</span>
+<span class="k"> 2. #include &ltstdlib.h&gt</span>
+<span class="k"> 3. #include &ltstdio.h&gt</span>
+<span class="k"> 4. #define MAX_LEN  24</span>
+<span class="k"> 5. #define MIN_LEN  4</span>
+<span class="k"> 6. void usage() {</span>
+<span class="k"> 7.	char des_buffer[MIN_LEN];  </span>
+<span class="k"> 8.	char* src_buffer="this is an example";</span>
+<span class="k"> 9.	strcpy(des_buffer,src_buffer);</span>
+<span class="k">10. }</span>
+<span class="k">11. int initialize(char* argv_string) {</span>
+<span class="k">12. 	char mapped_argv[5];</span>
+<span class="k">13. 	if (strlen(argv_string) >= MAX_LEN)</span>
+<span class="k">14. 		 return 0;</span>
+<span class="k">15. 	strcpy(mapped_argv,argv_string);</span>
+<span class="k">16. 	if (argv_string[0] != '-') {</span>
+<span class="k">17. 		strcat(mapped_argv, "-");</span>
+<span class="k">18. 	}</span>
+<span class="k">19. 	return MAX_LEN;</span>
+<span class="k">20. }</span>
+<span class="k">21. </span>
+<span class="k">22. int main(int argc, char **argv) {	</span>
+<span class="k">23. 	char* mode = (char*)malloc(MIN_LEN);</span>
+<span class="k">24. 	int len = 0;</span>
+<span class="k">25. 	if (strlen(argv[1]) < MIN_LEN)</span>
+<span class="k">26.		len = initialize(argv[1]);</span>
+<span class="k">27. 	if (len > 0) {</span>
+<span class="k">28. 		mode = (char*)realloc(mode, len);</span>
+<span class="k">29. 	}  </span>
+<span class="k">30. 	else {</span>
+<span class="k">31. 		mode[0] = argv[1][0];</span>
+<span class="k">32. 	}</span>
+<span class="k">33. 	mode[MIN_LEN-1] = '\0';</span>
+<span class="k">34. 	free(mode);</span>
+<span class="k">35. 	return 0;</span>
+<span class="k">36. }</span>
+/code></pre></div>
       </section>
     </div>
 

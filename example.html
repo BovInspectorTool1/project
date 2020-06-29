@@ -101,6 +101,8 @@ a buffer is first declared or the entry of program. BOF is he statement label th
 We use opt to dynamic load shared object buildCFG.so and following command to generate GuideSrc.txt.<br>
 
 <code> &nbsp opt -load ./buildCFG.so -buildCFG -targetList=./checklist_bufferoverflow <src.o> /dev/null </code><br>
+The ICFG of the program:
+<p style="text-align:center;"><img src="https://raw.githubusercontent.com/BovInspectorTool1/project/gh-pages/images/icfg.png" alt="ICFG" width="600" ></p>
 
 GuideSrc.txt is consist of several warning paths.A warning path is consist of branches from entry to the position in where may occur buffer  in the testcase.In this sample,the GuideSrc.txt is:<br>
 

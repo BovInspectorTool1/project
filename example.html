@@ -152,7 +152,18 @@ During the process of symbolic execution,  GuideSrc.txt will be readed in and th
 To use klee to target guided execute and inspect buffer overflow,you may run klee with command line option --guided-execution and additional input file GuideSrc.txt which should be copyed the to directory where the source file is.<br>
 <code> &nbsp klee --libc=uclibc --posix-runtime --guided-execution src.o --sym-args 1 3 25 </code><br>
 BBovInspector report line 15, 33 is false warning and line 17 is true warning in report_NOTBFO.txt and  report_BFO.txt.
-<p style="text-align:center;"><img src="https://raw.githubusercontent.com/BovInspectorTool1/project/gh-pages/images/bofshot.png" alt="bofshot" width="200" ></p>
+<p>report_BFO.txt:</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k">src.c_17 strcat</span>
+</code></pre></div>
+<p>report_NOTBFO.txt:</p>
+<div class="highlight"><pre><code class="language-c" data-lang="c">
+<span class="k">src.c_15 strcpy</span>
+<span class="k">src.c_33 Array bound</span>
+</code></pre></div>
+
+<p style="text-align:center;"><img src="https://raw.githubusercontent.com/BovInspectorTool1/project/gh-pages/images/bofshot.png" alt="bofshot" width="400" ></p>
+<p>Test case:</p>
 <p style="text-align:center;"><img src="https://raw.githubusercontent.com/BovInspectorTool1/project/gh-pages/images/testcase.png" alt="testcast" width="600" ></p>
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Repair</h3>
